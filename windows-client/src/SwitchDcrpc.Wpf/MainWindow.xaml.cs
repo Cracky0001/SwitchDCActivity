@@ -1,8 +1,10 @@
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using Microsoft.Win32;
 using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Media.Imaging;
 using SwitchDcrpc.Wpf.Services;
 using SwitchDcrpc.Wpf.ViewModels;
 
@@ -22,6 +24,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        TrySetWindowIcon();
         DataContext = new MainViewModel();
         _trayIcon = BuildTrayIcon();
         StateChanged += OnStateChanged;
@@ -29,16 +32,58 @@ public partial class MainWindow : Window
         _ = SyncAutostartFromConfigAsync();
     }
 
+    private void TrySetWindowIcon()
+    {
+        try
+        {
+            Icon = BitmapFrame.Create(new Uri("pack://application:,,,/Nintendo-switch-icon.ico"));
+        }
+        catch
+        {
+            // Ignore icon load errors to prevent startup crashes.
+        }
+    }
+
     private NotifyIcon BuildTrayIcon()
     {
-        var exePath = Environment.ProcessPath;
-        var appIcon = !string.IsNullOrWhiteSpace(exePath) ? System.Drawing.Icon.ExtractAssociatedIcon(exePath) : SystemIcons.Application;
+        Icon? appIcon = null;
+
+        try
+        {
+            var localIcoPath = Path.Combine(AppContext.BaseDirectory, "Nintendo-switch-icon.ico");
+            if (File.Exists(localIcoPath))
+            {
+                appIcon = new Icon(localIcoPath);
+            }
+        }
+        catch
+        {
+            // Ignore icon file load errors.
+        }
+
+        if (appIcon is null)
+        {
+            try
+            {
+                var exePath = Environment.ProcessPath;
+                if (!string.IsNullOrWhiteSpace(exePath))
+                {
+                    appIcon = System.Drawing.Icon.ExtractAssociatedIcon(exePath);
+                }
+            }
+            catch
+            {
+                // Ignore executable icon extraction errors.
+            }
+        }
+
+        appIcon ??= SystemIcons.Application;
         _trayAppIcon = appIcon;
 
         var icon = new NotifyIcon
         {
             Text = "Switch DCRPC",
-            Icon = appIcon ?? SystemIcons.Application,
+            Icon = appIcon,
             Visible = true,
             ContextMenuStrip = new ContextMenuStrip()
         };

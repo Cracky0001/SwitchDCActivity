@@ -67,7 +67,7 @@ public sealed class MainViewModel : ObservableObject
     public string Port
     {
         get => _port;
-        set => SetProperty(ref _port, value);
+        set => SetProperty(ref _port, DefaultPort);
     }
 
     public string DiscordAppId

@@ -10,11 +10,16 @@
     <AssemblyName>SwitchDCActivity</AssemblyName>
     <Product>SwitchDCActivity</Product>
     <Title>SwitchDCActivity</Title>
-    <ApplicationIcon>S2DCRPC.ico</ApplicationIcon>
+    <ApplicationIcon>Nintendo-switch-icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="S2DCRPC.ico" />
+    <Content Include="Nintendo-switch-icon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Nintendo-switch-icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

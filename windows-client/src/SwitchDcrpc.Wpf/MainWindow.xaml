@@ -5,7 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="SwitchDCActivity"
-        Icon="pack://application:,,,/Nintendo-switch-icon.ico"
         Height="420"
         Width="760"
         MinWidth="680"
@@ -49,7 +48,12 @@
                 <TextBox Grid.Row="1" Grid.Column="0" Margin="0,4,10,10" Text="{Binding SwitchIp, UpdateSourceTrigger=PropertyChanged}"/>
 
                 <TextBlock Grid.Row="0" Grid.Column="1" Text="Port" VerticalAlignment="Center"/>
-                <TextBox Grid.Row="1" Grid.Column="1" Margin="0,4,10,10" Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}"/>
+                <TextBox Grid.Row="1" Grid.Column="1"
+                         Margin="0,4,10,10"
+                         IsReadOnly="True"
+                         ToolTip="Fixed: 6000"
+                         Opacity="0.85"
+                         Text="{Binding Port, Mode=OneWay}"/>
 
                 <TextBlock Grid.Row="0" Grid.Column="2" Text="RPC Name" VerticalAlignment="Center"/>
                 <TextBox Grid.Row="1" Grid.Column="2" Margin="0,4,10,10" Text="{Binding RpcName, UpdateSourceTrigger=PropertyChanged}"/>

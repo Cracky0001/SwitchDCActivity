@@ -130,6 +130,8 @@ public partial class App : System.Windows.Application
             return;
         }
 
+        MainWindow.ShowInTaskbar = true;
+
         if (!MainWindow.IsVisible)
         {
             MainWindow.Show();
