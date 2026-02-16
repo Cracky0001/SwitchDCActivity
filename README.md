@@ -23,19 +23,6 @@ Das Projekt besteht aus zwei Teilen:
 
 ---
 
-## Projektaufbau
-
-- `source/`, `include/`, `Makefile`  
-  Switch-Sysmodule (Atmosphère)
-- `scripts/package.ps1`  
-  Build + SD-Card Paketstruktur
-- `windows-client/src/SwitchDcrpc.Wpf`  
-  WPF-Desktopclient (`net10.0-windows`)
-- `windows-client/docs/rpc-overview.png`  
-  RPC-Übersichtsdiagramm
-
----
-
 ## End-to-End Datenfluss
 
 1. Das Sysmodule läuft auf der Switch
@@ -75,17 +62,6 @@ Beispiel (`/state`):
   "last_ns_result": "0x00000000"
 }
 ```
-
-### Build + Paket (Switch)
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\package.ps1
-```
-
-Typische SD-Ausgabe:
-
-- `dist/sdcard/atmosphere/contents/00FF0000A1B2C3D4/exefs.nsp`
-- `dist/sdcard/atmosphere/contents/00FF0000A1B2C3D4/flags/boot2.flag`
 
 ---
 
@@ -223,4 +199,4 @@ Ausgabe:
 
 ## Lizenz
 
-Lizenz nach Bedarf ergänzen.
+GPL-3.0 license
