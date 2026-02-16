@@ -2,6 +2,8 @@
 
 Komplettlösung für Discord Rich Presence auf der Nintendo Switch.
 
+![RPC Overview](./windows-client/docs/rpc-overview.png)
+
 Das Projekt besteht aus zwei Teilen:
 
 1. **Switch-Sysmodule** (liefert Telemetrie als HTTP-JSON)
@@ -89,8 +91,6 @@ Typische SD-Ausgabe:
 
 ## Windows-Client (SwitchDCActivity)
 
-![RPC Overview](./windows-client/docs/rpc-overview.png)
-
 ### Features
 
 - Discord Rich Presence via Discord IPC (`discord-ipc-0..9`)
@@ -107,7 +107,7 @@ Typische SD-Ausgabe:
 ### Standardwerte
 
 - `Switch IP`: `YourSwitchIP`
-- `Port`: `6000`
+- `Port`: `6029`
 - `RPC Name`: `Playing on Switch`
 - `Poll (ms)`: `2000`
 
