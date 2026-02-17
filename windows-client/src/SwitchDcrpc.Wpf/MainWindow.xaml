@@ -51,7 +51,7 @@
                 <TextBox Grid.Row="1" Grid.Column="1"
                          Margin="0,4,10,10"
                          IsReadOnly="True"
-                         ToolTip="Fixed: 6000"
+                         ToolTip="Fixed: 6029"
                          Opacity="0.85"
                          Text="{Binding Port, Mode=OneWay}"/>
 

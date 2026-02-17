@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SwitchDCActivity")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+021a3481acb731b679964d85a6235e71252d69f0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2a3d32a0f6868decdb7600df8f72e743acd6b38e")]
 [assembly: System.Reflection.AssemblyProductAttribute("SwitchDCActivity")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SwitchDCActivity")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

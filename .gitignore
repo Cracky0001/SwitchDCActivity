@@ -1,0 +1,4 @@
+/.dotnet-home
+/build
+/dist
+/windows-client/src/SwitchDcrpc.Wpf/bin

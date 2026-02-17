@@ -169,7 +169,7 @@ public partial class MainWindow : Window
     private async void MenuSettings_Click(object sender, RoutedEventArgs e)
     {
         var cfg = await _configStore.LoadAsync(CancellationToken.None);
-        var dialog = new SettingsWindow(cfg.StartWithWindows, cfg.ConnectOnStartup, cfg.ShowGithubButton)
+        var dialog = new SettingsWindow(cfg.StartWithWindows, cfg.ConnectOnStartup, cfg.ShowGithubButton, cfg.ShowBatteryStatus)
         {
             Owner = this
         };
@@ -182,12 +182,14 @@ public partial class MainWindow : Window
         cfg.StartWithWindows = dialog.StartWithWindows;
         cfg.ConnectOnStartup = dialog.ConnectOnStartup;
         cfg.ShowGithubButton = dialog.ShowGithubButton;
+        cfg.ShowBatteryStatus = dialog.ShowBatteryStatus;
 
         if (DataContext is MainViewModel vm)
         {
             vm.StartWithWindows = cfg.StartWithWindows;
             vm.ConnectOnStartup = cfg.ConnectOnStartup;
             vm.ShowGithubButton = cfg.ShowGithubButton;
+            vm.ShowBatteryStatus = cfg.ShowBatteryStatus;
             cfg.SwitchIp = vm.SwitchIp;
             cfg.Port = vm.Port;
             cfg.PollIntervalMs = vm.PollIntervalMs;
@@ -232,6 +234,7 @@ public partial class MainWindow : Window
                 vm.StartWithWindows = cfg.StartWithWindows;
                 vm.ConnectOnStartup = cfg.ConnectOnStartup;
                 vm.ShowGithubButton = cfg.ShowGithubButton;
+                vm.ShowBatteryStatus = cfg.ShowBatteryStatus;
             }
 
             SetAutostart(cfg.StartWithWindows);

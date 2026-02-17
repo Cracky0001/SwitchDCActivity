@@ -12,7 +12,7 @@
 #define APPINIT_DELAY_NS           (20ULL * 1000000000ULL)
 #define INIT_RETRY_TICKS           3
 #define HEARTBEAT_TICKS            15
-#define HTTP_PORT                  6000
+#define HTTP_PORT                  6029
 #define STATUS_PATH                "sdmc:/switch/switch-dcrpc/status.txt"
 #define DETECTION_DISABLE_FLAG_PATH "sdmc:/switch/switch-dcrpc/detection.off"
 #define ENABLE_PM_SERVICES         1
@@ -39,6 +39,8 @@ bool __nx_fsdev_support_cwd = false;
 static bool g_sm_ready = false;
 static bool g_fs_ready = false;
 static bool g_setsys_ready = false;
+static bool g_applet_ready = false;
+static bool g_psm_ready = false;
 static bool g_pmshell_ready = false;
 static bool g_pminfo_ready = false;
 static bool g_nifm_ready = false;
@@ -188,7 +190,7 @@ static void detection_worker_thread(void* arg) {
             logger_write("detector: ns ready");
         }
 
-        telemetry_update(&g_telemetry, true);
+        telemetry_update(&g_telemetry, true, g_psm_ready, g_applet_ready);
 
         rmutexLock(&g_telemetry.lock);
         ns_rc = g_telemetry.last_ns_result;
@@ -319,7 +321,7 @@ static void update_status_file(const char* state) {
         "stage=%s\n"
         "last_rc=0x%08lX\n"
         "heartbeats=%llu\n"
-        "sm=%d fs=%d setsys=%d pmshell=%d pminfo=%d nifm=%d socket=%d\n" 
+        "sm=%d fs=%d setsys=%d applet=%d psm=%d pmshell=%d pminfo=%d nifm=%d socket=%d\n" 
         "detector_started=%d detector_running=%d detector_ns=%d kill_switch=%d\n"
         "detector_alive=%d detector_last_hb=%llu\n"
         "detector_attempts=%llu detector_ok=%llu detector_fail=%llu detector_streak=%u\n"
@@ -333,6 +335,8 @@ static void update_status_file(const char* state) {
         g_sm_ready,
         g_fs_ready,
         g_setsys_ready,
+        g_applet_ready,
+        g_psm_ready,
         g_pmshell_ready,
         g_pminfo_ready,
         g_nifm_ready,
@@ -405,6 +409,8 @@ void __appExit(void) {
     http_server_stop(&g_server);
     if (g_socket_ready) socketExit();
     if (g_nifm_ready) nifmExit();
+    if (g_applet_ready) appletExit();
+    if (g_psm_ready) psmExit();
     if (g_pminfo_ready) pminfoExit();
     if (g_pmshell_ready) pmshellExit();
     if (g_ns_ready) nsExit();
@@ -479,6 +485,22 @@ int main(int argc, char* argv[]) {
                 rc = nifmInitialize(NifmServiceType_User);
                 g_last_rc = rc;
                 if (R_SUCCEEDED(rc)) g_nifm_ready = true;
+            }
+
+            if (!g_applet_ready) {
+                set_stage("applet.init");
+                rc = appletInitialize();
+                g_last_rc = rc;
+                if (R_SUCCEEDED(rc)) g_applet_ready = true;
+            }
+
+            if (!g_psm_ready) {
+                set_stage("psm.init");
+                rc = psmInitialize();
+                g_last_rc = rc;
+                if (R_SUCCEEDED(rc)) {
+                    g_psm_ready = true;
+                }
             }
 
             if (!g_socket_ready) {
@@ -582,7 +604,9 @@ int main(int argc, char* argv[]) {
         set_stage("telemetry.update");
         telemetry_update(
             &g_telemetry,
-            ENABLE_RISKY_MAINLOOP_DETECTION && http_started && g_detection_services_ready && !g_detection_kill_switch
+            ENABLE_RISKY_MAINLOOP_DETECTION && http_started && g_detection_services_ready && !g_detection_kill_switch,
+            g_psm_ready,
+            g_applet_ready
         );
         if (ENABLE_RISKY_MAINLOOP_DETECTION && http_started && g_detection_services_ready && !g_detection_kill_switch) {
             log_active_title_if_changed();
@@ -594,7 +618,7 @@ int main(int argc, char* argv[]) {
             set_stage("heartbeat");
             http_server_build_debug_json(&g_server, dbg, sizeof(dbg));
             logger_write(
-                "heartbeat: n=%llu uptime=%llus stage=%s rc=0x%08lX sm=%d fs=%d setsys=%d pmshell=%d pminfo=%d nifm=%d socket=%d http_started=%d detector_started=%d detector_run=%d detector_alive=%d detector_hb=%llu detector_ns=%d detector_streak=%u detector_kill=%d cooldown_until=%llu unclean_prev=%d", 
+                "heartbeat: n=%llu uptime=%llus stage=%s rc=0x%08lX sm=%d fs=%d setsys=%d applet=%d pmshell=%d pminfo=%d nifm=%d socket=%d http_started=%d detector_started=%d detector_run=%d detector_alive=%d detector_hb=%llu detector_ns=%d detector_streak=%u detector_kill=%d cooldown_until=%llu unclean_prev=%d", 
                 (unsigned long long)g_heartbeat_count,
                 (unsigned long long)sec_since_boot_now(),
                 g_stage,
@@ -602,6 +626,7 @@ int main(int argc, char* argv[]) {
                 g_sm_ready,
                 g_fs_ready,
                 g_setsys_ready,
+                g_applet_ready,
                 g_pmshell_ready, 
                 g_pminfo_ready, 
                 g_nifm_ready,

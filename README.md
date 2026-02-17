@@ -55,6 +55,9 @@ Beispiel (`/state`):
   "firmware": "21.2.0",
   "active_program_id": "0x01006F8002326000",
   "active_game": "Animal Crossing New Horizons",
+  "battery_percent": 78,
+  "is_charging": true,
+  "is_docked": true,
   "started_sec": 12,
   "last_update_sec": 20,
   "sample_count": 4,
@@ -74,6 +77,8 @@ Beispiel (`/state`):
 - Titelauflösung über lokale Liste + TitleDB-Fallback
 - optionale Icons aus TitleDB
 - stabilere Session-Zeit pro Spiel
+- Akku-Prozent + Ladestatus aus `/state` im RPC-Status
+- Docked/Handheld-Status aus `/state` im RPC-Status
 - RPC-Clear nach längerer Endpoint-Unerreichbarkeit
 - optionaler GitHub-Button im RPC
 - Tray-Modus (Close-to-tray, Reopen/Exit über Tray-Icon)
@@ -105,6 +110,7 @@ Beispiel (`/state`):
 - `Autostart with Windows`
 - `Connect on startup`
 - `Show GitHub button in RPC`
+- `Show battery status in RPC`
 
 Zusätzlich:
 

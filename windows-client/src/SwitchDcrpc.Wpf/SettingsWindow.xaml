@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Settings"
-        Height="240"
+        Height="270"
         Width="420"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner">
@@ -20,7 +20,10 @@
                       Content="Connect on startup"
                       Margin="0,0,0,10"/>
             <CheckBox x:Name="ShowGithubButtonCheckBox"
-                      Content="Show GitHub button in RPC"/>
+                      Content="Show GitHub button in RPC"
+                      Margin="0,0,0,10"/>
+            <CheckBox x:Name="ShowBatteryStatusCheckBox"
+                      Content="Show battery/docked status in RPC"/>
         </StackPanel>
 
         <StackPanel Grid.Row="1"

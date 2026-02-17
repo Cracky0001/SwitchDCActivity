@@ -12,7 +12,7 @@ public sealed class MainViewModel : ObservableObject
 {
     private const string HardcodedDiscordAppId = "1472632678929924399";
     private const string DefaultSwitchIp = "YourSwitchIP";
-    private const string DefaultPort = "6000";
+    private const string DefaultPort = "6029";
     private const string DefaultPollIntervalMs = "2000";
     private const string DefaultRpcName = "Playing on Switch";
     private const string DefaultTitleDbPack = "DE.de.json";
@@ -46,6 +46,7 @@ public sealed class MainViewModel : ObservableObject
     private bool _connectOnStartup;
     private bool _startWithWindows;
     private bool _showGithubButton = true;
+    private bool _showBatteryStatus = true;
     private string? _presenceSessionKey;
     private long _presenceSessionStartUnix;
 
@@ -104,6 +105,12 @@ public sealed class MainViewModel : ObservableObject
     {
         get => _showGithubButton;
         set => SetProperty(ref _showGithubButton, value);
+    }
+
+    public bool ShowBatteryStatus
+    {
+        get => _showBatteryStatus;
+        set => SetProperty(ref _showBatteryStatus, value);
     }
 
     public string StatusText
@@ -343,7 +350,7 @@ public sealed class MainViewModel : ObservableObject
 
     private bool ValidateInputs(out int port, out int pollMs)
     {
-        port = 6000;
+        port = 6029;
         pollMs = 2000;
 
         if (string.IsNullOrWhiteSpace(SwitchIp))
@@ -375,6 +382,11 @@ public sealed class MainViewModel : ObservableObject
             ? "HOME-Menu"
             : $"{game}";
         var status = $"FW {Safe(state.Firmware)}";
+        var batteryStatus = ShowBatteryStatus ? BuildBatteryStatus(state) : null;
+        if (!string.IsNullOrWhiteSpace(batteryStatus))
+        {
+            status = $"{status} | {batteryStatus}";
+        }
         var sessionKey = BuildPresenceSessionKey(state, game);
         if (!string.Equals(_presenceSessionKey, sessionKey, StringComparison.Ordinal))
         {
@@ -554,6 +566,34 @@ public sealed class MainViewModel : ObservableObject
         return $"name:{gameName.Trim().ToUpperInvariant()}";
     }
 
+    private static string? BuildBatteryStatus(SwitchState state)
+    {
+        if (state.IsDocked == true)
+        {
+            return "Docked";
+        }
+
+        if (state.BatteryPercent is null && state.IsCharging is null)
+        {
+            return null;
+        }
+
+        if (state.BatteryPercent is null)
+        {
+            return state.IsCharging == true ? "Charging" : "On battery";
+        }
+
+        var pct = Math.Clamp(state.BatteryPercent.Value, 0, 100);
+        if (state.IsCharging is null)
+        {
+            return $"BAT {pct}%";
+        }
+
+        return state.IsCharging == true
+            ? $"BAT {pct}% charging"
+            : $"BAT {pct}%";
+    }
+
     private static void Ui(Action action)
     {
         if (System.Windows.Application.Current.Dispatcher.CheckAccess())
@@ -604,6 +644,7 @@ public sealed class MainViewModel : ObservableObject
             var connectOnStartup = cfg.ConnectOnStartup;
             var startWithWindows = cfg.StartWithWindows;
             var showGithubButton = cfg.ShowGithubButton;
+            var showBatteryStatus = cfg.ShowBatteryStatus;
 
             Ui(() =>
             {
@@ -614,6 +655,7 @@ public sealed class MainViewModel : ObservableObject
                 ConnectOnStartup = connectOnStartup;
                 StartWithWindows = startWithWindows;
                 ShowGithubButton = showGithubButton;
+                ShowBatteryStatus = showBatteryStatus;
                 SelectedTitleDbPack = pack;
             });
 
@@ -639,7 +681,8 @@ public sealed class MainViewModel : ObservableObject
             PollIntervalMs = string.IsNullOrWhiteSpace(PollIntervalMs) ? DefaultPollIntervalMs : PollIntervalMs.Trim(),
             ConnectOnStartup = ConnectOnStartup,
             StartWithWindows = StartWithWindows,
-            ShowGithubButton = ShowGithubButton
+            ShowGithubButton = ShowGithubButton,
+            ShowBatteryStatus = ShowBatteryStatus
         };
     }
 }

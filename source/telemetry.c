@@ -64,7 +64,7 @@ void telemetry_set_firmware(TelemetryState* state, const char* firmware) {
     rmutexUnlock(&state->lock);
 }
 
-void telemetry_update(TelemetryState* state, bool allow_pm_query) {
+void telemetry_update(TelemetryState* state, bool allow_pm_query, bool allow_battery_query, bool allow_dock_query) {
     u64 now = sec_since_boot_now();
     u64 program_id = 0;
     u64 process_id = 0;
@@ -72,23 +72,90 @@ void telemetry_update(TelemetryState* state, bool allow_pm_query) {
     Result pminfo_rc = 0;
     Result ns_rc = 0;
     Result svc_rc = 0;
+    Result psm_charge_rc = 0;
+    Result psm_charger_rc = 0;
+    Result dock_rc = 0;
+    u32 battery_percent = 0;
+    u32 opmode_info = 0;
+    PsmChargerType charger_type = PsmChargerType_Unconnected;
+    AppletOperationMode opmode = AppletOperationMode_Handheld;
     bool query_attempted = false;
     bool have_program = false;
+    bool battery_percent_valid = false;
+    bool is_charging_valid = false;
+    bool is_docked_valid = false;
+    bool is_docked = false;
+    u32 dock_detection_source = 0;
+    bool should_query_program = false;
     u32 source = 0;
+
+    if (allow_battery_query) {
+        psm_charge_rc = psmGetBatteryChargePercentage(&battery_percent);
+        if (R_SUCCEEDED(psm_charge_rc)) {
+            battery_percent_valid = true;
+        }
+
+        psm_charger_rc = psmGetChargerType(&charger_type);
+        if (R_SUCCEEDED(psm_charger_rc)) {
+            is_charging_valid = true;
+        }
+    }
+
+    if (allow_dock_query) {
+        dock_rc = appletGetOperationModeSystemInfo(&opmode_info);
+        if (R_SUCCEEDED(dock_rc)) {
+            opmode = appletGetOperationMode();
+            is_docked = (opmode == AppletOperationMode_Console);
+            is_docked_valid = true;
+            dock_detection_source = 1;
+        }
+        (void)opmode_info;
+
+        // Fallback for sysmodule contexts where applet mode may be unavailable.
+        if (!is_docked_valid && is_charging_valid) {
+            is_docked = (charger_type == PsmChargerType_EnoughPower);
+            is_docked_valid = true;
+            dock_detection_source = 2;
+        }
+    }
 
     rmutexLock(&state->lock);
     state->sample_count++;
     state->last_update_sec = now;
+    if (allow_battery_query) {
+        state->last_psm_charge_result = psm_charge_rc;
+        state->last_psm_charger_result = psm_charger_rc;
+        state->battery_percent_valid = battery_percent_valid;
+        state->is_charging_valid = is_charging_valid;
+
+        if (battery_percent_valid) {
+            state->battery_percent = battery_percent;
+        }
+        if (is_charging_valid) {
+            state->is_charging = (charger_type != PsmChargerType_Unconnected);
+        }
+    }
+    if (allow_dock_query) {
+        state->last_dock_result = dock_rc;
+        state->is_docked_valid = is_docked_valid;
+        state->dock_detection_source = dock_detection_source;
+        if (is_docked_valid) {
+            state->is_docked = is_docked;
+        }
+    }
+
     if (allow_pm_query) {
         state->detection_mode = true;
     }
-
-    if (!allow_pm_query || now < state->next_query_sec) {
-        rmutexUnlock(&state->lock);
+    should_query_program = allow_pm_query && now >= state->next_query_sec;
+    if (should_query_program) {
+        state->next_query_sec = now + PROGRAM_QUERY_INTERVAL_SEC;
+    }
+    rmutexUnlock(&state->lock);
+    
+    if (!should_query_program) {
         return;
     }
-    state->next_query_sec = now + PROGRAM_QUERY_INTERVAL_SEC;
-    rmutexUnlock(&state->lock);
 
     query_attempted = true;
     pm_rc = pmshellGetApplicationProcessIdForShell(&process_id);
@@ -214,6 +281,19 @@ void telemetry_build_json(TelemetryState* state, char* out, size_t out_size) {
     u32 detection_fail_streak = 0;
     u64 detection_last_query_sec = 0;
     u64 detection_last_success_sec = 0;
+    u32 battery_percent = 0;
+    bool battery_percent_valid = false;
+    bool is_charging = false;
+    bool is_charging_valid = false;
+    bool is_docked = false;
+    bool is_docked_valid = false;
+    Result last_psm_charge_result = 0;
+    Result last_psm_charger_result = 0;
+    Result last_dock_result = 0;
+    u32 dock_detection_source = 0;
+    char battery_percent_json[16];
+    char is_charging_json[8];
+    char is_docked_json[8];
     char active_game[sizeof(state->active_game)];
     char firmware[sizeof(state->firmware)];
 
@@ -235,12 +315,37 @@ void telemetry_build_json(TelemetryState* state, char* out, size_t out_size) {
     detection_fail_streak = state->detection_fail_streak;
     detection_last_query_sec = state->detection_last_query_sec;
     detection_last_success_sec = state->detection_last_success_sec;
+    battery_percent = state->battery_percent;
+    battery_percent_valid = state->battery_percent_valid;
+    is_charging = state->is_charging;
+    is_charging_valid = state->is_charging_valid;
+    is_docked = state->is_docked;
+    is_docked_valid = state->is_docked_valid;
+    last_psm_charge_result = state->last_psm_charge_result;
+    last_psm_charger_result = state->last_psm_charger_result;
+    last_dock_result = state->last_dock_result;
+    dock_detection_source = state->dock_detection_source;
     copy_utf8_trunc(active_game, sizeof(active_game), state->active_game);
     copy_utf8_trunc(firmware, sizeof(firmware), state->firmware);
     rmutexUnlock(&state->lock);
 
     json_escape(active_game, escaped_game, sizeof(escaped_game));
     json_escape(firmware, escaped_firmware, sizeof(escaped_firmware));
+    if (battery_percent_valid) {
+        snprintf(battery_percent_json, sizeof(battery_percent_json), "%u", (unsigned int)battery_percent);
+    } else {
+        snprintf(battery_percent_json, sizeof(battery_percent_json), "null");
+    }
+    if (is_charging_valid) {
+        snprintf(is_charging_json, sizeof(is_charging_json), "%s", is_charging ? "true" : "false");
+    } else {
+        snprintf(is_charging_json, sizeof(is_charging_json), "null");
+    }
+    if (is_docked_valid) {
+        snprintf(is_docked_json, sizeof(is_docked_json), "%s", is_docked ? "true" : "false");
+    } else {
+        snprintf(is_docked_json, sizeof(is_docked_json), "null");
+    }
 
     snprintf(
         out,
@@ -265,7 +370,14 @@ void telemetry_build_json(TelemetryState* state, char* out, size_t out_size) {
         "\"detection_fail_count\":%llu,"
         "\"detection_fail_streak\":%u,"
         "\"detection_last_query_sec\":%llu,"
-        "\"detection_last_success_sec\":%llu"
+        "\"detection_last_success_sec\":%llu,"
+        "\"battery_percent\":%s,"
+        "\"is_charging\":%s,"
+        "\"is_docked\":%s,"
+        "\"dock_detection_source\":%u,"
+        "\"last_psm_charge_result\":\"0x%08lX\","
+        "\"last_psm_charger_result\":\"0x%08lX\","
+        "\"last_dock_result\":\"0x%08lX\""
         "}",
         escaped_firmware,
         (unsigned long long)active_program_id,
@@ -285,6 +397,13 @@ void telemetry_build_json(TelemetryState* state, char* out, size_t out_size) {
         (unsigned long long)detection_fail_count,
         (unsigned int)detection_fail_streak,
         (unsigned long long)detection_last_query_sec,
-        (unsigned long long)detection_last_success_sec
+        (unsigned long long)detection_last_success_sec,
+        battery_percent_json,
+        is_charging_json,
+        is_docked_json,
+        (unsigned int)dock_detection_source,
+        (unsigned long)last_psm_charge_result,
+        (unsigned long)last_psm_charger_result,
+        (unsigned long)last_dock_result
     );
 }

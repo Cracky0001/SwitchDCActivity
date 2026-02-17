@@ -29,9 +29,19 @@ typedef struct {
     u32 detection_fail_streak;
     u64 detection_last_query_sec;
     u64 detection_last_success_sec;
+    u32 battery_percent;
+    bool battery_percent_valid;
+    bool is_charging;
+    bool is_charging_valid;
+    bool is_docked;
+    bool is_docked_valid;
+    u32 dock_detection_source; // 0=none, 1=applet, 2=charger_heuristic
+    Result last_psm_charge_result;
+    Result last_psm_charger_result;
+    Result last_dock_result;
 } TelemetryState;
 
 void telemetry_init(TelemetryState* state);
 void telemetry_set_firmware(TelemetryState* state, const char* firmware);
-void telemetry_update(TelemetryState* state, bool allow_pm_query);
+void telemetry_update(TelemetryState* state, bool allow_pm_query, bool allow_battery_query, bool allow_dock_query);
 void telemetry_build_json(TelemetryState* state, char* out, size_t out_size);

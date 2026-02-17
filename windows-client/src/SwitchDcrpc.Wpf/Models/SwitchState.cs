@@ -18,4 +18,13 @@ public sealed class SwitchState
 
     [JsonPropertyName("last_update_sec")]
     public ulong LastUpdateSec { get; set; }
+
+    [JsonPropertyName("battery_percent")]
+    public int? BatteryPercent { get; set; }
+
+    [JsonPropertyName("is_charging")]
+    public bool? IsCharging { get; set; }
+
+    [JsonPropertyName("is_docked")]
+    public bool? IsDocked { get; set; }
 }

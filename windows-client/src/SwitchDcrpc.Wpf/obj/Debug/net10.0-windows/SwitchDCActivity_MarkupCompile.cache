@@ -1,5 +1,5 @@
 ﻿SwitchDCActivity
-1.0.0.0
+
 
 winexe
 C#
@@ -12,7 +12,7 @@ TRACE;DEBUG;NET;NET10_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_O
 C:\Users\mirco\Documents\GitHub\SwitchDCActivity\windows-client\src\SwitchDcrpc.Wpf\App.xaml
 3-905333335
 2-2126912829
-191571774158
+17500948229
 214-867867448
 AboutWindow.xaml;MainWindow.xaml;SettingsWindow.xaml;
 

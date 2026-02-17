@@ -6,13 +6,14 @@ namespace SwitchDcrpc.Wpf.Services;
 public sealed class ClientConfigStore
 {
     private const string DefaultSwitchIp = "YourSwitchIP";
-    private const string DefaultPort = "6000";
+    private const string DefaultPort = "6029";
     private const string DefaultPollIntervalMs = "2000";
     private const string DefaultRpcName = "Playing on Switch";
     private const string DefaultTitleDbPack = "DE.de.json";
     private const bool DefaultConnectOnStartup = false;
     private const bool DefaultStartWithWindows = false;
     private const bool DefaultShowGithubButton = true;
+    private const bool DefaultShowBatteryStatus = true;
     private readonly string _path;
 
     public ClientConfigStore()
@@ -38,7 +39,8 @@ public sealed class ClientConfigStore
                     PollIntervalMs = DefaultPollIntervalMs,
                     ConnectOnStartup = DefaultConnectOnStartup,
                     StartWithWindows = DefaultStartWithWindows,
-                    ShowGithubButton = DefaultShowGithubButton
+                    ShowGithubButton = DefaultShowGithubButton,
+                    ShowBatteryStatus = DefaultShowBatteryStatus
                 };
                 await SaveAsync(cfg, cancellationToken);
                 return cfg;
@@ -53,6 +55,10 @@ public sealed class ClientConfigStore
                 {
                     cfg2.ShowGithubButton = DefaultShowGithubButton;
                 }
+                if (!doc.RootElement.TryGetProperty(nameof(ClientConfig.ShowBatteryStatus), out _))
+                {
+                    cfg2.ShowBatteryStatus = DefaultShowBatteryStatus;
+                }
             }
             return cfg2 ?? new ClientConfig
             {
@@ -63,7 +69,8 @@ public sealed class ClientConfigStore
                 PollIntervalMs = DefaultPollIntervalMs,
                 ConnectOnStartup = DefaultConnectOnStartup,
                 StartWithWindows = DefaultStartWithWindows,
-                ShowGithubButton = DefaultShowGithubButton
+                ShowGithubButton = DefaultShowGithubButton,
+                ShowBatteryStatus = DefaultShowBatteryStatus
             };
         }
         catch
@@ -77,7 +84,8 @@ public sealed class ClientConfigStore
                 PollIntervalMs = DefaultPollIntervalMs,
                 ConnectOnStartup = DefaultConnectOnStartup,
                 StartWithWindows = DefaultStartWithWindows,
-                ShowGithubButton = DefaultShowGithubButton
+                ShowGithubButton = DefaultShowGithubButton,
+                ShowBatteryStatus = DefaultShowBatteryStatus
             };
         }
     }
@@ -100,4 +108,5 @@ public sealed class ClientConfig
     public bool ConnectOnStartup { get; set; }
     public bool StartWithWindows { get; set; }
     public bool ShowGithubButton { get; set; }
+    public bool ShowBatteryStatus { get; set; }
 }
