@@ -60,7 +60,7 @@ namespace SwitchDcrpc.Wpf {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/RichNX;component/aboutwindow.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/RichNX;V1.0.1.0;component/aboutwindow.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\AboutWindow.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

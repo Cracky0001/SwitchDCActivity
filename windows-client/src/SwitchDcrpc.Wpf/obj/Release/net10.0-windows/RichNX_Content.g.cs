@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("nintendo-switch-icon.ico")]
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("nintendo-switch-icon.png")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("rnx.ico")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("rnx.png")]
 
 

@@ -36,7 +36,7 @@ public partial class MainWindow : Window
     {
         try
         {
-            Icon = BitmapFrame.Create(new Uri("pack://application:,,,/Nintendo-switch-icon.ico"));
+            Icon = BitmapFrame.Create(new Uri("pack://application:,,,/RNX.ico"));
         }
         catch
         {
@@ -50,7 +50,7 @@ public partial class MainWindow : Window
 
         try
         {
-            var localIcoPath = Path.Combine(AppContext.BaseDirectory, "Nintendo-switch-icon.ico");
+            var localIcoPath = Path.Combine(AppContext.BaseDirectory, "RNX.ico");
             if (File.Exists(localIcoPath))
             {
                 appIcon = new Icon(localIcoPath);

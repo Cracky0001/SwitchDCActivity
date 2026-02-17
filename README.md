@@ -1,4 +1,4 @@
-﻿# RichNX
+﻿![RichNX](./windows-client/src/SwitchDcrpc.Wpf/RNX.png)
 
 Komplettlösung für Discord Rich Presence auf der Nintendo Switch.
 
@@ -206,5 +206,7 @@ Ausgabe:
 ## Lizenz
 
 GPL-3.0 license
+
+
 
 
