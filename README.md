@@ -1,24 +1,25 @@
 ﻿![RichNX](./windows-client/src/SwitchDcrpc.Wpf/RNX.png)
 
-RichNX zeigt Nintendo-Switch-Aktivität als Discord Rich Presence.
+RichNX shows Nintendo Switch activity as Discord Rich Presence.
 
-## Komponenten
-- `Sysmodule` (Switch): stellt Telemetrie über HTTP bereit
-- `Windows-Client` (RichNX): pollt `/state` und setzt Discord RPC
+## Components
+- `Sysmodule` (Switch): exposes telemetry via HTTP
+- `Windows client` (RichNX): polls `/state` and updates Discord RPC
 
-## Schnellstart
-1. Sysmodule nach Atmosphere kopieren:
+## Quick Start
+1. Copy the sysmodule to Atmosphere:
 - `sd:/atmosphere/contents/00FF0000A1B2C3D4/exefs.nsp`
 - `sd:/atmosphere/contents/00FF0000A1B2C3D4/flags/boot2.flag`
-2. Switch neu starten.
-3. Windows-Client starten (`RichNX.exe`).
-4. In RichNX `Switch IP` eintragen und `Start` klicken.
+  
+2. Reboot the Switch.
+3. Start the Windows client (`RichNX.exe`).
+4. Enter your `Switch IP` in RichNX and click `Start`.
 
 ## HTTP API
 - `GET /state`
 - `GET /debug`
 
-Beispiel `/state`:
+Example `/state`:
 ```json
 {
   "service": "RichNX",
@@ -33,18 +34,19 @@ Beispiel `/state`:
 }
 ```
 
-## Windows-Client
-Standardwerte:
+## Windows Client
+Default values:
 - `Port`: `6029`
 - `RPC Name`: `Playing on Switch`
 - `Poll (ms)`: `2000`
 
-Wichtige Features:
+Key features:
 - Discord IPC (`discord-ipc-0..9`)
-- Titelauflösung (lokal + TitleDB)
-- Tray-Modus + Single-Instance
-- optionaler GitHub-Button
-- optionaler Batterie-Status im RPC
+- Title resolving (local list + TitleDB)
+- Tray mode + single instance
+- Optional GitHub button
+- Optional battery status in RPC
 
-## Lizenz
+
+## License
 GPL-3.0
